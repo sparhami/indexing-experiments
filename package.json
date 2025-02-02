@@ -18,7 +18,6 @@
     "mnemonist": "^0.40.0"
   },
   "scripts": {
-    "test:watch": "jest --watch",
-    "test:inspect": "NODE_OPTIONS='--inspect' yarn run test:watch"
+    "test:watch": "jest --watch"
   }
 }
