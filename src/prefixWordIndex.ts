@@ -1,8 +1,6 @@
 import { wordIterator } from "./wordIterator";
 import { PrefixWordShard } from "./prefixWordShard";
-
-type WordPosition = [number, number];
-type PrefixWordPosition = [string, ...WordPosition];
+import { DocumentId, PrefixWordPosition } from "./indexTypes";
 
 export class PrefixWordIndex {
   private readonly shards: Array<PrefixWordShard> = [];
@@ -52,7 +50,7 @@ export class PrefixWordIndex {
     return shard;
   }
 
-  updateDocument(documentId: string, content: string) {
+  updateDocument(documentId: DocumentId, content: string) {
     for (const wordInfo of wordIterator(content)) {
       const shard = this.getShard(wordInfo.text);
 
@@ -79,7 +77,7 @@ export class PrefixWordIndex {
 
   *getMatchingInstances(
     prefix: string,
-    documentId: string
+    documentId: DocumentId
   ): Iterable<PrefixWordPosition> {
     for (const shard of this.shards) {
       for (const instance of shard.getMatchingInstances(prefix, documentId)) {

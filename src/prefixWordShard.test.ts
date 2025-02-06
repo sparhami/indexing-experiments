@@ -1,33 +1,38 @@
 import { describe, it, expect } from "@jest/globals";
 
 import { PrefixWordShard } from "./prefixWordShard";
+import { DocumentId } from "./indexTypes";
 
 describe("prefixWordShard", () => {
+  const docIdA = "idA" as DocumentId;
+  const docIdB = "idB" as DocumentId;
+  const docIdC = "idC" as DocumentId;
+
   it("should return matching documents for an exact match", () => {
     const shard = new PrefixWordShard();
-    shard.updateDocument("a", "hello world");
-    shard.updateDocument("b", "hello mars");
-    shard.updateDocument("c", "salve helios");
+    shard.updateDocument(docIdA, "hello world");
+    shard.updateDocument(docIdB, "hello mars");
+    shard.updateDocument(docIdC, "salve helios");
 
     const documents = Array.from(shard.getMatchingDocuments("he"));
-    expect(documents).toEqual(expect.arrayContaining(["a", "b", "c"]));
+    expect(documents).toEqual(expect.arrayContaining([docIdA, docIdB, docIdC]));
   });
 
   it("should return matching documents for an prefix match", () => {
     const shard = new PrefixWordShard();
-    shard.updateDocument("a", "hello world");
-    shard.updateDocument("b", "hello mars");
-    shard.updateDocument("c", "salve helios");
+    shard.updateDocument(docIdA, "hello world");
+    shard.updateDocument(docIdB, "hello mars");
+    shard.updateDocument(docIdC, "salve helios");
 
     const documents = Array.from(shard.getMatchingDocuments("he"));
-    expect(documents).toEqual(expect.arrayContaining(["a", "b", "c"]));
+    expect(documents).toEqual(expect.arrayContaining([docIdA, docIdB, docIdC]));
   });
 
   it("should return no documents when there is no match", () => {
     const shard = new PrefixWordShard();
-    shard.updateDocument("a", "hello world");
-    shard.updateDocument("b", "hello mars");
-    shard.updateDocument("c", "salve helios");
+    shard.updateDocument(docIdA, "hello world");
+    shard.updateDocument(docIdB, "hello mars");
+    shard.updateDocument(docIdC, "salve helios");
 
     const documents = Array.from(shard.getMatchingDocuments("help"));
     expect(documents).toEqual([]);
@@ -35,18 +40,18 @@ describe("prefixWordShard", () => {
 
   it("should return all word positions for a prefix match", () => {
     const shard = new PrefixWordShard();
-    shard.updateDocument("a", "hello world hello helios");
-    shard.updateDocument("b", "mars");
+    shard.updateDocument(docIdA, "hello world hello helios");
+    shard.updateDocument(docIdB, "mars");
 
     const documents = Array.from(shard.getMatchingDocuments("he"));
-    expect(documents).toEqual(["a"]);
+    expect(documents).toEqual([docIdA]);
 
-    const positions = Array.from(shard.getMatchingInstances("he", "a"));
+    const positions = Array.from(shard.getMatchingInstances("he", docIdA));
     expect(positions).toEqual(
       expect.arrayContaining([
-        ["hello", 0, 0],
-        ["hello", 12, 12],
-        ["helios", 18, 18],
+        ["hello", { codepointIndex: 0, wordIndex: 0 }],
+        ["hello", { codepointIndex: 12, wordIndex: 2 }],
+        ["helios", { codepointIndex: 18, wordIndex: 3 }],
       ])
     );
   });
@@ -60,7 +65,7 @@ describe("prefixWordShard", () => {
 
   it("should update the first/last word on the first add", () => {
     const shard = new PrefixWordShard();
-    shard.updateDocument("a", "mars");
+    shard.updateDocument(docIdA, "mars");
 
     expect(shard.firstWord).toEqual("mars");
     expect(shard.lastWord).toEqual("mars");
@@ -68,8 +73,8 @@ describe("prefixWordShard", () => {
 
   it("should update the first word when a new word is added", () => {
     const shard = new PrefixWordShard();
-    shard.updateDocument("a", "mars");
-    shard.updateDocument("b", "earth");
+    shard.updateDocument(docIdA, "mars");
+    shard.updateDocument(docIdB, "earth");
 
     expect(shard.firstWord).toEqual("earth");
     expect(shard.lastWord).toEqual("mars");
@@ -77,8 +82,8 @@ describe("prefixWordShard", () => {
 
   it("should update the last word when a new word is added", () => {
     const shard = new PrefixWordShard();
-    shard.updateDocument("a", "mars");
-    shard.updateDocument("b", "venus");
+    shard.updateDocument(docIdA, "mars");
+    shard.updateDocument(docIdB, "venus");
 
     expect(shard.firstWord).toEqual("mars");
     expect(shard.lastWord).toEqual("venus");

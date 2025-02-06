@@ -1,14 +1,24 @@
 import { isEmojiText } from "./isEmojiText";
 import { Utf16IndexToCodePointIndexCalculator } from "./utf16Utils";
 
+export type Word = string & {
+  readonly brand: unique symbol;
+};
+
 export type WordInfo = {
-  text: string;
-  codePointIndex: number;
+  text: Word;
+  codepointIndex: number;
+  wordIndex: number;
+};
+
+export type WordInfo2 = {
+  text: Word;
+  codepointIndex: number;
   utf16Index: number;
   wordIndex: number;
 };
 
-export function* wordIterator(content: string): Iterable<WordInfo> {
+export function* wordIterator(content: string): Iterable<WordInfo2> {
   const segmenter = new Intl.Segmenter("en-US", { granularity: "word" });
   const codePointIndexCalculator = new Utf16IndexToCodePointIndexCalculator();
 
@@ -19,11 +29,11 @@ export function* wordIterator(content: string): Iterable<WordInfo> {
     }
 
     const utf16Index = data.index;
-    const codePointIndex = codePointIndexCalculator.get(content, utf16Index);
+    const codepointIndex = codePointIndexCalculator.get(content, utf16Index);
 
     yield {
-      text: data.segment,
-      codePointIndex,
+      text: data.segment as Word,
+      codepointIndex,
       utf16Index,
       wordIndex,
     };

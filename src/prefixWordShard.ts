@@ -1,9 +1,8 @@
 import TrieMap from "mnemonist/trie-map";
+import MultiMap from "mnemonist/multi-map";
 
-import { WordInfo, wordIterator } from "./wordIterator";
-
-type WordPosition = [number, number];
-type PrefixWordPosition = [string, ...WordPosition];
+import { Word, WordInfo, wordIterator } from "./wordIterator";
+import { DocumentId, PrefixWordPosition, WordPosition } from "./indexTypes";
 
 export class PrefixWordShard {
   /**
@@ -11,15 +10,18 @@ export class PrefixWordShard {
    * (and positions in the document) for the words.
    */
   private readonly wordTrie = new TrieMap<
-    string,
-    Map<string, Array<WordPosition>>
+    Word,
+    MultiMap<DocumentId, WordPosition>
   >();
 
   protected _firstWord: string | null = null;
 
   protected _lastWord: string | null = null;
 
-  constructor() {}
+  constructor(firstWord: string | null = null, lastWord: string | null = null) {
+    this._firstWord = firstWord;
+    this._lastWord = lastWord;
+  }
 
   get firstWord() {
     return this._firstWord;
@@ -29,28 +31,29 @@ export class PrefixWordShard {
     return this._lastWord;
   }
 
-  updateDocument(documentId: string, content: string) {
+  getDocumentWordEntries() {
+    return this.wordTrie.entries();
+  }
+
+  updateDocument(documentId: DocumentId, content: string) {
     for (const wordInfo of wordIterator(content)) {
       this.addWord(documentId, wordInfo);
     }
   }
 
-  addWord(documentId: string, wordInfo: WordInfo) {
-    const { text, utf16Index, codePointIndex } = wordInfo;
+  addWord(documentId: DocumentId, wordInfo: WordInfo) {
+    const { text, wordIndex, codepointIndex } = wordInfo;
 
     const existingDocMap = this.wordTrie.get(text);
-    const docMap = existingDocMap ?? new Map();
+    const docMap = existingDocMap ?? new MultiMap<DocumentId, WordPosition>();
     if (!existingDocMap) {
       this.wordTrie.set(text, docMap);
     }
 
-    const existingEntries = docMap.get(documentId);
-    const entries = existingEntries ?? [];
-    if (!existingEntries) {
-      docMap.set(documentId, entries);
-    }
-
-    entries.push([utf16Index, codePointIndex]);
+    docMap.set(documentId, {
+      codepointIndex,
+      wordIndex,
+    });
 
     if (!this.firstWord || this.firstWord.localeCompare(text) > 0) {
       this._firstWord = text;
@@ -64,7 +67,7 @@ export class PrefixWordShard {
   private *getMatchingDocumentsWithDuplicates(
     prefix: string
   ): Iterable<string> {
-    const docMaps = this.wordTrie.find(prefix);
+    const docMaps = this.wordTrie.find(prefix as Word);
 
     for (const [text, docMap] of docMaps) {
       for (const key of docMap.keys()) {
@@ -82,15 +85,15 @@ export class PrefixWordShard {
 
   *getMatchingInstances(
     prefix: string,
-    documentId: string
+    documentId: DocumentId
   ): Iterable<PrefixWordPosition> {
-    const docMaps = this.wordTrie.find(prefix);
+    const docMaps = this.wordTrie.find(prefix as Word);
 
     for (const [text, docMap] of docMaps) {
       const entries = docMap.get(documentId) ?? [];
 
       for (const entry of entries) {
-        yield [text, ...entry];
+        yield [text, entry];
       }
     }
   }

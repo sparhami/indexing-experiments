@@ -8,8 +8,8 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "world", utf16Index: 6, codePointIndex: 6, wordIndex: 1 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "world", utf16Index: 6, codepointIndex: 6, wordIndex: 1 },
     ]);
   });
 
@@ -18,8 +18,8 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "world", utf16Index: 7, codePointIndex: 7, wordIndex: 1 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "world", utf16Index: 7, codepointIndex: 7, wordIndex: 1 },
     ]);
   });
 
@@ -28,8 +28,8 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "world", utf16Index: 6, codePointIndex: 6, wordIndex: 1 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "world", utf16Index: 6, codepointIndex: 6, wordIndex: 1 },
     ]);
   });
 
@@ -38,8 +38,8 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "world", utf16Index: 7, codePointIndex: 7, wordIndex: 1 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "world", utf16Index: 7, codepointIndex: 7, wordIndex: 1 },
     ]);
   });
 
@@ -48,8 +48,8 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "world", utf16Index: 7, codePointIndex: 7, wordIndex: 1 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "world", utf16Index: 7, codepointIndex: 7, wordIndex: 1 },
     ]);
   });
 
@@ -59,55 +59,55 @@ describe("wordIterator", () => {
 
     expect(res).toMatchObject([
       {
-        codePointIndex: 0,
+        codepointIndex: 0,
         text: "今日",
         utf16Index: 0,
         wordIndex: 0,
       },
       {
-        codePointIndex: 2,
+        codepointIndex: 2,
         text: "は",
         utf16Index: 2,
         wordIndex: 1,
       },
       {
-        codePointIndex: 3,
+        codepointIndex: 3,
         text: "土曜日",
         utf16Index: 3,
         wordIndex: 2,
       },
       {
-        codePointIndex: 6,
+        codepointIndex: 6,
         text: "です",
         utf16Index: 6,
         wordIndex: 3,
       },
       {
-        codePointIndex: 9,
+        codepointIndex: 9,
         text: "コーヒー",
         utf16Index: 9,
         wordIndex: 4,
       },
       {
-        codePointIndex: 13,
+        codepointIndex: 13,
         text: "で",
         utf16Index: 13,
         wordIndex: 5,
       },
       {
-        codePointIndex: 14,
+        codepointIndex: 14,
         text: "仕事",
         utf16Index: 14,
         wordIndex: 6,
       },
       {
-        codePointIndex: 16,
+        codepointIndex: 16,
         text: "を",
         utf16Index: 16,
         wordIndex: 7,
       },
       {
-        codePointIndex: 17,
+        codepointIndex: 17,
         text: "する",
         utf16Index: 17,
         wordIndex: 8,
@@ -120,8 +120,8 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "world", utf16Index: 7, codePointIndex: 7, wordIndex: 1 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "world", utf16Index: 7, codepointIndex: 7, wordIndex: 1 },
     ]);
   });
 
@@ -130,7 +130,7 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
     ]);
   });
 
@@ -153,10 +153,10 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "💙", utf16Index: 5, codePointIndex: 5, wordIndex: 1 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "💙", utf16Index: 5, codepointIndex: 5, wordIndex: 1 },
       // The 💙 has two code units, so utf16 index differs from code point index.
-      { text: "world", utf16Index: 7, codePointIndex: 6, wordIndex: 2 },
+      { text: "world", utf16Index: 7, codepointIndex: 6, wordIndex: 2 },
     ]);
   });
 
@@ -165,11 +165,11 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "👍🏽", utf16Index: 5, codePointIndex: 5, wordIndex: 1 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "👍🏽", utf16Index: 5, codepointIndex: 5, wordIndex: 1 },
       // Two code points for 👍🏽, the thumb up and color. Those are two code
       // units each, so indexes reflect that.
-      { text: "world", utf16Index: 9, codePointIndex: 7, wordIndex: 2 },
+      { text: "world", utf16Index: 9, codepointIndex: 7, wordIndex: 2 },
     ]);
   });
 
@@ -178,10 +178,10 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "❤️‍🩹", utf16Index: 5, codePointIndex: 5, wordIndex: 1 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "❤️‍🩹", utf16Index: 5, codepointIndex: 5, wordIndex: 1 },
       // Four code points for ❤️‍🩹, heart + variation selector + ZWJ + bandage
-      { text: "world", utf16Index: 10, codePointIndex: 9, wordIndex: 2 },
+      { text: "world", utf16Index: 10, codepointIndex: 9, wordIndex: 2 },
     ]);
   });
 
@@ -190,10 +190,10 @@ describe("wordIterator", () => {
     const res = Array.from(iter);
 
     expect(res).toMatchObject([
-      { text: "hello", utf16Index: 0, codePointIndex: 0, wordIndex: 0 },
-      { text: "❤", utf16Index: 5, codePointIndex: 5, wordIndex: 1 },
-      { text: "🌎", utf16Index: 6, codePointIndex: 6, wordIndex: 2 },
-      { text: "world", utf16Index: 8, codePointIndex: 7, wordIndex: 3 },
+      { text: "hello", utf16Index: 0, codepointIndex: 0, wordIndex: 0 },
+      { text: "❤", utf16Index: 5, codepointIndex: 5, wordIndex: 1 },
+      { text: "🌎", utf16Index: 6, codepointIndex: 6, wordIndex: 2 },
+      { text: "world", utf16Index: 8, codepointIndex: 7, wordIndex: 3 },
     ]);
   });
 });
