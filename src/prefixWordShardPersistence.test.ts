@@ -54,37 +54,22 @@ describe("prefixWordShard", () => {
     const chapters = pnpText.split(new RegExp("CHAPTER [A-Z]+."));
     const shard = new PrefixWordShard();
 
+    console.time("index");
     for (let i = 0; i < chapters.length; i++) {
       const id = String(i) as DocumentId;
       shard.updateDocument(id, chapters[i]);
     }
+    console.timeEnd("index");
 
-    // console.log(shard.getMatchingDocuments("Elizabeth"));
-    // for (let i = 0; i < 10; i++) {
-    //   for (const instance of shard.getMatchingInstances(
-    //     "Elizabeth",
-    //     String(i) as DocumentId
-    //   )) {
-    //     console.log(i, instance);
-    //   }
-    // }
+    console.time("serialize");
     const serialized = await serialize(shard);
+    console.timeEnd("serialize");
 
     let size = 0;
     Object.entries(serialized.documents).forEach(([documentId, data]) => {
       size += data.length;
-      // console.log("documentId", documentId, data.length);
     });
 
-    // let compressedSize = 0;
-    // Object.entries(serialized.documentsCompressed).forEach(
-    //   ([documentId, data]) => {
-    //     compressedSize += data.length;
-    //     // console.log("documentId", documentId, data.length);
-    //   }
-    // );
-
     console.log("data size", size);
-    // console.log("data size (compressed)", compressedSize);
   });
 });

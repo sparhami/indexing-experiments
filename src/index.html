@@ -1,0 +1,30 @@
+<html>
+  <script type="module">
+    import { PrefixWordShard, serialize } from "../build/bundle.js";
+
+    const pnpText = await fetch("./testdata/pnp.text").then((res) =>
+      res.text()
+    );
+
+    const chapters = pnpText.split(new RegExp("CHAPTER [A-Z]+."));
+    const shard = new PrefixWordShard();
+
+    console.time("index");
+    for (let i = 0; i < chapters.length; i++) {
+      const id = String(i);
+      shard.updateDocument(id, chapters[i]);
+    }
+    console.timeEnd("index");
+
+    console.time("serialize");
+    const serialized = await serialize(shard);
+    console.timeEnd("serialize");
+
+    let size = 0;
+    Object.entries(serialized.documents).forEach(([documentId, data]) => {
+      size += data.length;
+    });
+
+    console.log("data size", size);
+  </script>
+</html>

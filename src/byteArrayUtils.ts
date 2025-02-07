@@ -2,6 +2,7 @@ export async function readableStreamToByteArray(stream: ReadableStream) {
   // Grab all the chunks of data from the stream.
   const chunks: Array<Uint8Array> = [];
   let totalLength = 0;
+  // @ts-ignore
   for await (const chunk of stream) {
     chunks.push(chunk);
     totalLength += chunk.length;

@@ -1,4 +1,4 @@
-import MultiMap from "mnemonist/multi-map";
+import { MultiMap } from "mnemonist";
 
 import {
   DocumentEntry,
@@ -17,7 +17,7 @@ type SerializedShard = {
   documents: Record<DocumentId, Uint8Array>;
 };
 
-type PersistedWordEntry = [Word | number, WordPosition[]];
+type PersistedWordEntry = [number | Word, WordPosition[]];
 
 function wordLocationToProto(wordLocation: WordPosition) {
   const proto = new WordLocation();

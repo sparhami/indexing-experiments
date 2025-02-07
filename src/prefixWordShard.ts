@@ -1,5 +1,4 @@
-import TrieMap from "mnemonist/trie-map";
-import MultiMap from "mnemonist/multi-map";
+import { TrieMap, MultiMap } from "mnemonist";
 
 import { Word, WordInfo, wordIterator } from "./wordIterator";
 import { DocumentId, PrefixWordPosition, WordPosition } from "./indexTypes";

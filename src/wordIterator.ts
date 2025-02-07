@@ -18,8 +18,10 @@ export type WordInfo2 = {
   wordIndex: number;
 };
 
+// @ts-ignore
+const segmenter = new Intl.Segmenter("en-US", { granularity: "word" });
+
 export function* wordIterator(content: string): Iterable<WordInfo2> {
-  const segmenter = new Intl.Segmenter("en-US", { granularity: "word" });
   const codePointIndexCalculator = new Utf16IndexToCodePointIndexCalculator();
 
   let wordIndex = 0;

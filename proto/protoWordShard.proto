@@ -5,20 +5,20 @@ package ProtoWordShard;
 message Document {
     string id = 1;
 
-    int32 revision = 2;
+    uint32 revision = 2;
 }
 
 message WordLocation {
-    int32 word_index = 1;
+    uint32 word_index = 1;
 
-    int32 codepoint_index = 2;
+    uint32 codepoint_index = 2;
 }
 
 message WordEntry {
     oneof word {
         string text = 1;
 
-        int32 index = 2;
+        uint32 index = 2;
     }
 
     repeated WordLocation word_locations = 3;

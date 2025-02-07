@@ -176,7 +176,7 @@ proto.ProtoWordShard.Document.deserializeBinaryFromReader = function(msg, reader
       msg.setId(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readInt32());
+      var value = /** @type {number} */ (reader.readUint32());
       msg.setRevision(value);
       break;
     default:
@@ -217,7 +217,7 @@ proto.ProtoWordShard.Document.serializeBinaryToWriter = function(message, writer
   }
   f = message.getRevision();
   if (f !== 0) {
-    writer.writeInt32(
+    writer.writeUint32(
       2,
       f
     );
@@ -244,7 +244,7 @@ proto.ProtoWordShard.Document.prototype.setId = function(value) {
 
 
 /**
- * optional int32 revision = 2;
+ * optional uint32 revision = 2;
  * @return {number}
  */
 proto.ProtoWordShard.Document.prototype.getRevision = function() {
@@ -332,11 +332,11 @@ proto.ProtoWordShard.WordLocation.deserializeBinaryFromReader = function(msg, re
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readInt32());
+      var value = /** @type {number} */ (reader.readUint32());
       msg.setWordIndex(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readInt32());
+      var value = /** @type {number} */ (reader.readUint32());
       msg.setCodepointIndex(value);
       break;
     default:
@@ -370,14 +370,14 @@ proto.ProtoWordShard.WordLocation.serializeBinaryToWriter = function(message, wr
   var f = undefined;
   f = message.getWordIndex();
   if (f !== 0) {
-    writer.writeInt32(
+    writer.writeUint32(
       1,
       f
     );
   }
   f = message.getCodepointIndex();
   if (f !== 0) {
-    writer.writeInt32(
+    writer.writeUint32(
       2,
       f
     );
@@ -386,7 +386,7 @@ proto.ProtoWordShard.WordLocation.serializeBinaryToWriter = function(message, wr
 
 
 /**
- * optional int32 word_index = 1;
+ * optional uint32 word_index = 1;
  * @return {number}
  */
 proto.ProtoWordShard.WordLocation.prototype.getWordIndex = function() {
@@ -404,7 +404,7 @@ proto.ProtoWordShard.WordLocation.prototype.setWordIndex = function(value) {
 
 
 /**
- * optional int32 codepoint_index = 2;
+ * optional uint32 codepoint_index = 2;
  * @return {number}
  */
 proto.ProtoWordShard.WordLocation.prototype.getCodepointIndex = function() {
@@ -531,7 +531,7 @@ proto.ProtoWordShard.WordEntry.deserializeBinaryFromReader = function(msg, reade
       msg.setText(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readInt32());
+      var value = /** @type {number} */ (reader.readUint32());
       msg.setIndex(value);
       break;
     case 3:
@@ -577,7 +577,7 @@ proto.ProtoWordShard.WordEntry.serializeBinaryToWriter = function(message, write
   }
   f = /** @type {number} */ (jspb.Message.getField(message, 2));
   if (f != null) {
-    writer.writeInt32(
+    writer.writeUint32(
       2,
       f
     );
@@ -630,7 +630,7 @@ proto.ProtoWordShard.WordEntry.prototype.hasText = function() {
 
 
 /**
- * optional int32 index = 2;
+ * optional uint32 index = 2;
  * @return {number}
  */
 proto.ProtoWordShard.WordEntry.prototype.getIndex = function() {
