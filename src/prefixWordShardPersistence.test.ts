@@ -65,11 +65,17 @@ describe("prefixWordShard", () => {
     const serialized = await serialize(shard);
     console.timeEnd("serialize");
 
-    let size = 0;
-    Object.entries(serialized.documents).forEach(([documentId, data]) => {
-      size += data.length;
-    });
+    const size = Object.entries(serialized.documents).reduce(
+      (p, [documentId, data]) => {
+        return p + data.length;
+      },
+      0
+    );
 
     console.log("data size", size);
+
+    console.time("split");
+    const splitOffShard = shard.split();
+    console.timeEnd("split");
   });
 });

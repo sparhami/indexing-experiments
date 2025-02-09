@@ -56,6 +56,24 @@ describe("prefixWordShard", () => {
     );
   });
 
+  it("should remove entries when updating the same document", () => {
+    const shard = new PrefixWordShard();
+    shard.updateDocument(docIdA, "hello world");
+    shard.updateDocument(docIdA, "the quick brown fox");
+
+    // No matches for the first update.
+    {
+      const documents = Array.from(shard.getMatchingDocuments("he"));
+      expect(documents).toEqual([]);
+    }
+
+    // Matches for the second update
+    {
+      const documents = Array.from(shard.getMatchingDocuments("brown"));
+      expect(documents).toEqual([docIdA]);
+    }
+  });
+
   it("should have a null initial first/last word", () => {
     const shard = new PrefixWordShard();
 

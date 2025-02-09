@@ -13,6 +13,8 @@ export class PrefixWordShard {
     MultiMap<DocumentId, WordPosition>
   >();
 
+  private readonly updatedDocuments = new Set<DocumentId>();
+
   protected _firstWord: string | null = null;
 
   protected _lastWord: string | null = null;
@@ -35,9 +37,23 @@ export class PrefixWordShard {
   }
 
   updateDocument(documentId: DocumentId, content: string) {
+    this.updatedDocuments.add(documentId);
+
+    for (const docMap of this.wordTrie.values()) {
+      docMap.delete(documentId);
+    }
+
     for (const wordInfo of wordIterator(content)) {
       this.addWord(documentId, wordInfo);
     }
+  }
+
+  clearUpdatedDocuments() {
+    this.updatedDocuments.clear();
+  }
+
+  getUpdatedDocuments(): Iterable<DocumentId> {
+    return this.updatedDocuments.keys();
   }
 
   addWord(documentId: DocumentId, wordInfo: WordInfo) {
@@ -61,6 +77,49 @@ export class PrefixWordShard {
     if (!this.lastWord || this.lastWord.localeCompare(text) < 0) {
       this._lastWord = text;
     }
+  }
+
+  private getSplitIndex(
+    entries: Array<[Word, MultiMap<DocumentId, WordPosition, WordPosition[]>]>,
+    splitCount: number
+  ) {
+    let currentCount = 0;
+
+    for (let i = 0; i < entries.length; i++) {
+      const [word, docMap] = entries[i];
+      currentCount += docMap.size;
+
+      if (currentCount >= splitCount) {
+        return i;
+      }
+    }
+
+    return entries.length;
+  }
+
+  split(): PrefixWordShard {
+    const entries = Array.from(this.wordTrie).sort(([wordA], [wordB]) => {
+      return wordA.localeCompare(wordB);
+    });
+    const totalCount = entries.reduce((total, [word, docMap]) => {
+      return total + docMap.size;
+    }, 0);
+    const splitIndex = this.getSplitIndex(entries, totalCount / 2);
+    const otherShard = new PrefixWordShard();
+
+    for (let i = splitIndex; i < entries.length; i++) {
+      const [word, docMap] = entries[i];
+
+      otherShard.wordTrie.set(word, docMap);
+      this.wordTrie.delete(word);
+    }
+
+    this._firstWord = entries.at(0)?.[0] ?? null;
+    this._lastWord = entries.at(splitIndex - 1)?.[0] ?? null;
+    otherShard._firstWord = entries.at(splitIndex)?.[0] ?? null;
+    otherShard._lastWord = entries.at(-1)?.[0] ?? null;
+
+    return otherShard;
   }
 
   private *getMatchingDocumentsWithDuplicates(
