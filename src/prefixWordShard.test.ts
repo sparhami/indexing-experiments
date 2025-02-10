@@ -8,45 +8,47 @@ describe("prefixWordShard", () => {
   const docIdB = "idB" as DocumentId;
   const docIdC = "idC" as DocumentId;
 
-  it("should return matching documents for an exact match", () => {
+  it("should return matching documents for an exact match", async () => {
     const shard = new PrefixWordShard();
     shard.updateDocument(docIdA, "hello world");
     shard.updateDocument(docIdB, "hello mars");
     shard.updateDocument(docIdC, "salve helios");
 
-    const documents = Array.from(shard.getMatchingDocuments("he"));
+    const documents = Array.from(await shard.getMatchingDocuments("he"));
     expect(documents).toEqual(expect.arrayContaining([docIdA, docIdB, docIdC]));
   });
 
-  it("should return matching documents for an prefix match", () => {
+  it("should return matching documents for an prefix match", async () => {
     const shard = new PrefixWordShard();
     shard.updateDocument(docIdA, "hello world");
     shard.updateDocument(docIdB, "hello mars");
     shard.updateDocument(docIdC, "salve helios");
 
-    const documents = Array.from(shard.getMatchingDocuments("he"));
+    const documents = Array.from(await shard.getMatchingDocuments("he"));
     expect(documents).toEqual(expect.arrayContaining([docIdA, docIdB, docIdC]));
   });
 
-  it("should return no documents when there is no match", () => {
+  it("should return no documents when there is no match", async () => {
     const shard = new PrefixWordShard();
     shard.updateDocument(docIdA, "hello world");
     shard.updateDocument(docIdB, "hello mars");
     shard.updateDocument(docIdC, "salve helios");
 
-    const documents = Array.from(shard.getMatchingDocuments("help"));
+    const documents = Array.from(await shard.getMatchingDocuments("help"));
     expect(documents).toEqual([]);
   });
 
-  it("should return all word positions for a prefix match", () => {
+  it("should return all word positions for a prefix match", async () => {
     const shard = new PrefixWordShard();
     shard.updateDocument(docIdA, "hello world hello helios");
     shard.updateDocument(docIdB, "mars");
 
-    const documents = Array.from(shard.getMatchingDocuments("he"));
+    const documents = Array.from(await shard.getMatchingDocuments("he"));
     expect(documents).toEqual([docIdA]);
 
-    const positions = Array.from(shard.getMatchingInstances("he", docIdA));
+    const positions = Array.from(
+      await shard.getMatchingInstances("he", docIdA)
+    );
     expect(positions).toEqual(
       expect.arrayContaining([
         ["hello", { codepointIndex: 0, wordIndex: 0 }],
@@ -56,20 +58,20 @@ describe("prefixWordShard", () => {
     );
   });
 
-  it("should remove entries when updating the same document", () => {
+  it("should remove entries when updating the same document", async () => {
     const shard = new PrefixWordShard();
     shard.updateDocument(docIdA, "hello world");
     shard.updateDocument(docIdA, "the quick brown fox");
 
     // No matches for the first update.
     {
-      const documents = Array.from(shard.getMatchingDocuments("he"));
+      const documents = Array.from(await shard.getMatchingDocuments("he"));
       expect(documents).toEqual([]);
     }
 
     // Matches for the second update
     {
-      const documents = Array.from(shard.getMatchingDocuments("brown"));
+      const documents = Array.from(await shard.getMatchingDocuments("brown"));
       expect(documents).toEqual([docIdA]);
     }
   });

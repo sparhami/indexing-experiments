@@ -22,12 +22,12 @@ describe("prefixWordShard", () => {
 
     {
       const documents = Array.from(
-        deserializedShard.getMatchingDocuments("he")
+        await deserializedShard.getMatchingDocuments("he")
       );
       expect(documents).toEqual(expect.arrayContaining([docIdA, docIdB]));
 
       const positions = Array.from(
-        deserializedShard.getMatchingInstances("he", docIdA)
+        await deserializedShard.getMatchingInstances("he", docIdA)
       );
       expect(positions).toEqual(
         expect.arrayContaining([
@@ -38,11 +38,13 @@ describe("prefixWordShard", () => {
     }
 
     {
-      const documents = Array.from(deserializedShard.getMatchingDocuments("m"));
+      const documents = Array.from(
+        await deserializedShard.getMatchingDocuments("m")
+      );
       expect(documents).toEqual([docIdB]);
 
       const positions = Array.from(
-        deserializedShard.getMatchingInstances("m", docIdB)
+        await deserializedShard.getMatchingInstances("m", docIdB)
       );
       expect(positions).toEqual(
         expect.arrayContaining([["mars", { codepointIndex: 6, wordIndex: 1 }]])

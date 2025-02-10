@@ -11,17 +11,16 @@ export type WordInfo = {
   wordIndex: number;
 };
 
-export type WordInfo2 = {
-  text: Word;
-  codepointIndex: number;
+export type WordInfoWithUtf16Index = WordInfo & {
   utf16Index: number;
-  wordIndex: number;
 };
 
 // @ts-ignore
 const segmenter = new Intl.Segmenter("en-US", { granularity: "word" });
 
-export function* wordIterator(content: string): Iterable<WordInfo2> {
+export function* wordIterator(
+  content: string
+): Iterable<WordInfoWithUtf16Index> {
   const codePointIndexCalculator = new Utf16IndexToCodePointIndexCalculator();
 
   let wordIndex = 0;

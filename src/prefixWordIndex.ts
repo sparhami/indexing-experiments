@@ -51,6 +51,10 @@ export class PrefixWordIndex {
   }
 
   updateDocument(documentId: DocumentId, content: string) {
+    for (const shard of this.shards) {
+      shard.removeDocument(documentId);
+    }
+
     for (const wordInfo of wordIterator(content)) {
       const shard = this.getShard(wordInfo.text);
 
@@ -58,29 +62,27 @@ export class PrefixWordIndex {
     }
   }
 
-  private *getMatchingDocumentsWithDuplicates(
-    prefix: string
-  ): Iterable<string> {
+  async getMatchingDocuments(prefix: string): Promise<Iterable<DocumentId>> {
+    const resultSet = new Set<DocumentId>();
+
     for (const shard of this.shards) {
-      for (const id of shard.getMatchingDocuments(prefix)) {
-        yield id;
+      for (const id of await shard.getMatchingDocuments(prefix)) {
+        resultSet.add(id);
       }
     }
+
+    return resultSet.keys();
   }
 
-  getMatchingDocuments(prefix: string): Iterable<string> {
-    const documentIdsIter = this.getMatchingDocumentsWithDuplicates(prefix);
-    const documentIdsSet = new Set(documentIdsIter);
-
-    return documentIdsSet.keys();
-  }
-
-  *getMatchingInstances(
+  async *getMatchingInstances(
     prefix: string,
     documentId: DocumentId
-  ): Iterable<PrefixWordPosition> {
+  ): AsyncIterable<PrefixWordPosition> {
     for (const shard of this.shards) {
-      for (const instance of shard.getMatchingInstances(prefix, documentId)) {
+      for (const instance of await shard.getMatchingInstances(
+        prefix,
+        documentId
+      )) {
         yield instance;
       }
     }

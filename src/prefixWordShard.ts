@@ -36,12 +36,15 @@ export class PrefixWordShard {
     return this.wordTrie.entries();
   }
 
-  updateDocument(documentId: DocumentId, content: string) {
-    this.updatedDocuments.add(documentId);
-
+  removeDocument(documentId: DocumentId) {
     for (const docMap of this.wordTrie.values()) {
       docMap.delete(documentId);
     }
+  }
+
+  updateDocument(documentId: DocumentId, content: string) {
+    this.removeDocument(documentId);
+    this.updatedDocuments.add(documentId);
 
     for (const wordInfo of wordIterator(content)) {
       this.addWord(documentId, wordInfo);
@@ -124,7 +127,7 @@ export class PrefixWordShard {
 
   private *getMatchingDocumentsWithDuplicates(
     prefix: string
-  ): Iterable<string> {
+  ): Iterable<DocumentId> {
     const docMaps = this.wordTrie.find(prefix as Word);
 
     for (const [text, docMap] of docMaps) {
@@ -134,14 +137,14 @@ export class PrefixWordShard {
     }
   }
 
-  getMatchingDocuments(prefix: string): Iterable<string> {
+  async getMatchingDocuments(prefix: string): Promise<Iterable<DocumentId>> {
     const documentIdsIter = this.getMatchingDocumentsWithDuplicates(prefix);
-    const documentIdsSet = new Set(documentIdsIter);
+    const documentIdsSet = new Set<DocumentId>(documentIdsIter);
 
     return documentIdsSet.keys();
   }
 
-  *getMatchingInstances(
+  private *_getMatchingInstances(
     prefix: string,
     documentId: DocumentId
   ): Iterable<PrefixWordPosition> {
@@ -154,5 +157,12 @@ export class PrefixWordShard {
         yield [text, entry];
       }
     }
+  }
+
+  async getMatchingInstances(
+    prefix: string,
+    documentId: DocumentId
+  ): Promise<Iterable<PrefixWordPosition>> {
+    return this._getMatchingInstances(prefix, documentId);
   }
 }

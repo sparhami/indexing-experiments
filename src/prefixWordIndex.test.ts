@@ -14,7 +14,7 @@ describe("prefixWordIndex", () => {
   const docIdB = "idB" as DocumentId;
   const docIdC = "idC" as DocumentId;
 
-  it("should return matching documents for a single shard", () => {
+  it("should return matching documents for a single shard", async () => {
     const index = new PrefixWordIndex();
     const shard = new TestShard();
 
@@ -22,11 +22,11 @@ describe("prefixWordIndex", () => {
     shard.updateDocument(docIdB, "hello mars");
     index.addShard(shard);
 
-    const documents = Array.from(index.getMatchingDocuments("he"));
+    const documents = Array.from(await index.getMatchingDocuments("he"));
     expect(documents).toEqual(expect.arrayContaining([docIdA, docIdB]));
   });
 
-  it("should return matching documents for multiple shards", () => {
+  it("should return matching documents for multiple shards", async () => {
     const index = new PrefixWordIndex();
     const shardOne = new TestShard();
     const shardTwo = new TestShard();
@@ -37,11 +37,11 @@ describe("prefixWordIndex", () => {
     index.addShard(shardOne);
     index.addShard(shardTwo);
 
-    const documents = Array.from(index.getMatchingDocuments("he"));
+    const documents = Array.from(await index.getMatchingDocuments("he"));
     expect(documents).toEqual(expect.arrayContaining([docIdA, docIdB, docIdC]));
   });
 
-  it("should return matching documents for overlapping shards", () => {
+  it("should return matching documents for overlapping shards", async () => {
     const index = new PrefixWordIndex();
     const shardOne = new TestShard();
     const shardTwo = new TestShard();
@@ -52,11 +52,11 @@ describe("prefixWordIndex", () => {
     index.addShard(shardOne);
     index.addShard(shardTwo);
 
-    const documents = Array.from(index.getMatchingDocuments("he"));
+    const documents = Array.from(await index.getMatchingDocuments("he"));
     expect(documents).toEqual(expect.arrayContaining([docIdA, docIdB, docIdC]));
   });
 
-  it("should add words to shards that cover the words", () => {
+  it("should add words to shards that cover the words", async () => {
     const index = new PrefixWordIndex();
     const shardOne = new TestShard();
     const shardTwo = new TestShard();
@@ -71,17 +71,17 @@ describe("prefixWordIndex", () => {
     index.updateDocument(docIdA, "beet sloe melon tomato");
     index.updateDocument(docIdB, "beet tomato");
 
-    const dOneFromShard = Array.from(shardOne.getMatchingDocuments("be"));
+    const dOneFromShard = Array.from(await shardOne.getMatchingDocuments("be"));
     expect(dOneFromShard).toEqual(expect.arrayContaining([docIdA, docIdB]));
-    const dOneFromIndex = Array.from(index.getMatchingDocuments("be"));
+    const dOneFromIndex = Array.from(await index.getMatchingDocuments("be"));
     expect(dOneFromIndex).toEqual(expect.arrayContaining([docIdA, docIdB]));
-    const dTwoFromShard = Array.from(shardTwo.getMatchingDocuments("to"));
+    const dTwoFromShard = Array.from(await shardTwo.getMatchingDocuments("to"));
     expect(dTwoFromShard).toEqual(expect.arrayContaining([docIdA, docIdB]));
-    const dTwoFromIndex = Array.from(index.getMatchingDocuments("to"));
+    const dTwoFromIndex = Array.from(await index.getMatchingDocuments("to"));
     expect(dTwoFromIndex).toEqual(expect.arrayContaining([docIdA, docIdB]));
   });
 
-  it.only("should add words and expand shards if needed", () => {
+  it("should add words and expand shards if needed", async () => {
     const index = new PrefixWordIndex();
     const shardOne = new TestShard();
     const shardTwo = new TestShard();
@@ -99,7 +99,7 @@ describe("prefixWordIndex", () => {
       index.updateDocument(docIdA, "a");
 
       expect(shardOne.firstWord).toEqual("a");
-      const docs = Array.from(shardOne.getMatchingDocuments("a"));
+      const docs = Array.from(await shardOne.getMatchingDocuments("a"));
       expect(docs).toEqual(expect.arrayContaining([docIdA]));
     }
 
@@ -108,7 +108,7 @@ describe("prefixWordIndex", () => {
       index.updateDocument(docIdB, "ca");
 
       expect(shardTwo.firstWord).toEqual("ca");
-      const docs = Array.from(shardTwo.getMatchingDocuments("ca"));
+      const docs = Array.from(await shardTwo.getMatchingDocuments("ca"));
       expect(docs).toEqual(expect.arrayContaining([docIdB]));
     }
 
@@ -117,7 +117,7 @@ describe("prefixWordIndex", () => {
       index.updateDocument(docIdC, "f");
 
       expect(shardTwo.lastWord).toEqual("f");
-      const docs = Array.from(shardTwo.getMatchingDocuments("f"));
+      const docs = Array.from(await shardTwo.getMatchingDocuments("f"));
       expect(docs).toEqual(expect.arrayContaining([docIdC]));
     }
   });
