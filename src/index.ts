@@ -1,2 +1,2 @@
-export * from "./prefixWordShard";
+export * from "./localPrefixWordShard";
 export * from "./prefixWordShardPersistence";

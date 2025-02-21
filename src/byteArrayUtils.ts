@@ -1,4 +1,4 @@
-export async function readableStreamToByteArray(stream: ReadableStream) {
+export async function readableStreamToArrayBuffer(stream: ReadableStream) {
   // Grab all the chunks of data from the stream.
   const chunks: Array<Uint8Array> = [];
   let totalLength = 0;
@@ -16,20 +16,20 @@ export async function readableStreamToByteArray(stream: ReadableStream) {
     offset += chunk.length;
   }
 
-  return byteArray;
+  return byteArray.buffer;
 }
 
-export function compressData(data: Uint8Array): Promise<Uint8Array> {
+export function compressData(data: ArrayBuffer): Promise<ArrayBuffer> {
   // Generate a compression stream, gather the chunks.
   const blob = new Blob([data]);
   const stream = blob.stream().pipeThrough(new CompressionStream("gzip"));
 
-  return readableStreamToByteArray(stream);
+  return readableStreamToArrayBuffer(stream);
 }
 
-export function decompressData(compressed: Uint8Array): Promise<Uint8Array> {
+export function decompressData(compressed: ArrayBuffer): Promise<ArrayBuffer> {
   const blob = new Blob([compressed]);
   const stream = blob.stream().pipeThrough(new DecompressionStream("gzip"));
 
-  return readableStreamToByteArray(stream);
+  return readableStreamToArrayBuffer(stream);
 }

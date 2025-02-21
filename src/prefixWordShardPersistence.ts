@@ -6,7 +6,7 @@ import {
   WordLocation,
 } from "./generated/proto/protoWordShard_pb";
 import { DocumentId, DocumentWordEntry, WordPosition } from "./indexTypes";
-import { PrefixWordShard } from "./prefixWordShard";
+import { LocalPrefixWordShard } from "./localPrefixWordShard";
 import { Word } from "./wordIterator";
 import { compressData, decompressData } from "./byteArrayUtils";
 
@@ -14,7 +14,7 @@ type SerializedShard = {
   words: Array<Word>;
   firstWord: string | null;
   lastWord: string | null;
-  documents: Record<DocumentId, Uint8Array>;
+  documents: Record<DocumentId, ArrayBuffer>;
 };
 
 type PersistedWordEntry = [number | Word, WordPosition[]];
@@ -71,7 +71,8 @@ export function documentWordEntriesFromProto(
 }
 
 export async function serialize(
-  shard: PrefixWordShard
+  shard: LocalPrefixWordShard,
+  encryptionFunction: (data: ArrayBuffer) => Promise<ArrayBuffer>
 ): Promise<SerializedShard> {
   // Track all the words,
   const words: Array<Word> = [];
@@ -103,38 +104,52 @@ export async function serialize(
     }
   );
 
-  // Step 3: Compress the data.
+  // Step 3, 4: Compress the data.
   const documentsWordContentCompressedPromises = documentsWordContent.map(
     async ([documentId, binaryContent]) => {
-      const compressed = await compressData(binaryContent);
+      const compressed = await compressData(
+        binaryContent.buffer as ArrayBuffer
+      );
 
-      return [documentId, compressed];
+      return [documentId, compressed] as const;
     }
   );
-  const documentsWordContentCompressed = await Promise.all(
-    documentsWordContentCompressedPromises
-  );
 
-  // Step 4: Encrypt the data for each entry.
+  // Step 4: Encrypt the compressed data for each entry.
+  const documentsWordContentEncryptedPromises =
+    documentsWordContentCompressedPromises.map(async (promise) => {
+      const [documentId, compressed] = await promise;
+      const encrypted = await encryptionFunction(compressed);
+
+      return [documentId, encrypted] as const;
+    });
+
+  const documentsWordContentEncrypted = await Promise.all(
+    documentsWordContentEncryptedPromises
+  );
 
   return {
     words,
     firstWord: shard.firstWord,
     lastWord: shard.lastWord,
-    documents: Object.fromEntries(documentsWordContentCompressed),
+    documents: Object.fromEntries(documentsWordContentEncrypted),
   };
 }
 
-export async function deserialize(serialized: SerializedShard) {
+export async function deserialize(
+  serialized: SerializedShard,
+  decryptionFunction: (data: ArrayBuffer) => Promise<ArrayBuffer>
+) {
   const { words, firstWord, lastWord, documents } = serialized;
-  const shard = new PrefixWordShard(firstWord, lastWord);
+  const shard = new LocalPrefixWordShard(firstWord, lastWord);
 
   const documentsWordContentCompressed = Object.entries(documents);
   const documentsWordContentPromises = documentsWordContentCompressed.map(
-    async ([documentId, compressedContent]) => {
-      const decompressed = await decompressData(compressedContent);
+    async ([documentId, encryptedContent]) => {
+      const decrypted = await decryptionFunction(encryptedContent);
+      const decompressed = await decompressData(decrypted);
 
-      return [documentId, decompressed] as const;
+      return [documentId, new Uint8Array(decompressed)] as const;
     }
   );
   const documentsWordContent = await Promise.all(documentsWordContentPromises);
@@ -149,10 +164,13 @@ export async function deserialize(serialized: SerializedShard) {
       const locations = wordEntry.getWordLocationsList();
 
       for (const location of locations) {
+        const wordIndex = location.getWordIndex();
+        const codepointIndex = location.getCodepointIndex();
+
         shard.addWord(documentId as DocumentId, {
           text,
-          wordIndex: location.getWordIndex(),
-          codepointIndex: location.getCodepointIndex(),
+          wordIndex,
+          codepointIndex,
         });
       }
     }

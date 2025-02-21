@@ -1,15 +1,15 @@
 import { describe, it, expect } from "@jest/globals";
 
-import { PrefixWordShard } from "./prefixWordShard";
+import { LocalPrefixWordShard } from "./localPrefixWordShard";
 import { DocumentId } from "./indexTypes";
 
-describe("prefixWordShard", () => {
+describe("LocalPrefixWordShard", () => {
   const docIdA = "idA" as DocumentId;
   const docIdB = "idB" as DocumentId;
   const docIdC = "idC" as DocumentId;
 
   it("should return matching documents for an exact match", async () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
     shard.updateDocument(docIdA, "hello world");
     shard.updateDocument(docIdB, "hello mars");
     shard.updateDocument(docIdC, "salve helios");
@@ -19,7 +19,7 @@ describe("prefixWordShard", () => {
   });
 
   it("should return matching documents for an prefix match", async () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
     shard.updateDocument(docIdA, "hello world");
     shard.updateDocument(docIdB, "hello mars");
     shard.updateDocument(docIdC, "salve helios");
@@ -29,7 +29,7 @@ describe("prefixWordShard", () => {
   });
 
   it("should return no documents when there is no match", async () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
     shard.updateDocument(docIdA, "hello world");
     shard.updateDocument(docIdB, "hello mars");
     shard.updateDocument(docIdC, "salve helios");
@@ -39,7 +39,7 @@ describe("prefixWordShard", () => {
   });
 
   it("should return all word positions for a prefix match", async () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
     shard.updateDocument(docIdA, "hello world hello helios");
     shard.updateDocument(docIdB, "mars");
 
@@ -59,7 +59,7 @@ describe("prefixWordShard", () => {
   });
 
   it("should remove entries when updating the same document", async () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
     shard.updateDocument(docIdA, "hello world");
     shard.updateDocument(docIdA, "the quick brown fox");
 
@@ -77,14 +77,14 @@ describe("prefixWordShard", () => {
   });
 
   it("should have a null initial first/last word", () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
 
     expect(shard.firstWord).toBeNull();
     expect(shard.lastWord).toBeNull();
   });
 
   it("should update the first/last word on the first add", () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
     shard.updateDocument(docIdA, "mars");
 
     expect(shard.firstWord).toEqual("mars");
@@ -92,7 +92,7 @@ describe("prefixWordShard", () => {
   });
 
   it("should update the first word when a new word is added", () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
     shard.updateDocument(docIdA, "mars");
     shard.updateDocument(docIdB, "earth");
 
@@ -101,7 +101,7 @@ describe("prefixWordShard", () => {
   });
 
   it("should update the last word when a new word is added", () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
     shard.updateDocument(docIdA, "mars");
     shard.updateDocument(docIdB, "venus");
 

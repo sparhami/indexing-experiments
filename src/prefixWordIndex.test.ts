@@ -1,10 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
 
-import { PrefixWordShard } from "./prefixWordShard";
+import { LocalPrefixWordShard } from "./localPrefixWordShard";
 import { PrefixWordIndex } from "./prefixWordIndex";
 import { DocumentId } from "./indexTypes";
 
-class TestShard extends PrefixWordShard {
+class TestShard extends LocalPrefixWordShard {
   declare _firstWord: string | null;
   declare _lastWord: string | null;
 }

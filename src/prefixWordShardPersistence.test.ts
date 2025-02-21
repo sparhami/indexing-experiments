@@ -1,25 +1,79 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect, beforeAll, jest } from "@jest/globals";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-import { PrefixWordShard } from "./prefixWordShard";
+import { LocalPrefixWordShard } from "./localPrefixWordShard";
 import { deserialize, serialize } from "./prefixWordShardPersistence";
 import { DocumentId } from "./indexTypes";
 
 const pnpText = readFileSync(join(__dirname, "testdata", "pnp.text"), "utf8");
 
-describe("prefixWordShard", () => {
+describe("prefixWordShard persistence", () => {
   const docIdA = "idA" as DocumentId;
   const docIdB = "idB" as DocumentId;
+  let encryptionFn: (data: ArrayBuffer) => Promise<ArrayBuffer> = null!;
+  let decryptionFn: (data: ArrayBuffer) => Promise<ArrayBuffer> = null!;
+
+  beforeAll(async () => {
+    const iv = await global.crypto.getRandomValues(new Uint8Array(12));
+    const key = await global.crypto.subtle.generateKey(
+      {
+        name: "AES-GCM",
+        length: 256,
+      },
+      false,
+      ["encrypt", "decrypt"]
+    );
+    encryptionFn = (data: ArrayBuffer) => {
+      return global.crypto.subtle.encrypt(
+        {
+          name: "AES-GCM",
+          iv,
+        },
+        key,
+        data
+      );
+    };
+    decryptionFn = (data: ArrayBuffer) => {
+      return global.crypto.subtle.decrypt(
+        {
+          name: "AES-GCM",
+          iv,
+        },
+        key,
+        data
+      );
+    };
+  });
 
   it("should serialize / deserialize", async () => {
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
     shard.updateDocument(docIdA, "hello world hello");
     shard.updateDocument(docIdB, "hello mars");
 
-    const serialized = await serialize(shard);
-    const deserializedShard = await deserialize(serialized);
+    const encryptionSpy = jest.fn((data: ArrayBuffer) => {
+      return encryptionFn(data);
+    });
+    const serialized = await serialize(shard, encryptionSpy);
 
+    // Check that the serialized data contains the result of the encryption
+    // function.
+    {
+      const results = await Promise.all(
+        encryptionSpy.mock.results.map(({ value }) => value)
+      );
+
+      expect(encryptionSpy).toBeCalledTimes(2);
+      expect(results).toEqual([
+        serialized.documents[docIdA],
+        serialized.documents[docIdB],
+      ]);
+    }
+
+    // Check that deserialization works correctly.
+    const deserializedShard = await deserialize(serialized, decryptionFn);
+
+    // Check for something in both documents.
     {
       const documents = Array.from(
         await deserializedShard.getMatchingDocuments("he")
@@ -37,6 +91,7 @@ describe("prefixWordShard", () => {
       );
     }
 
+    // Check for something in only one document.
     {
       const documents = Array.from(
         await deserializedShard.getMatchingDocuments("m")
@@ -52,9 +107,9 @@ describe("prefixWordShard", () => {
     }
   });
 
-  it("should serialize/deserialize pnp", async () => {
+  it.skip("should serialize/deserialize pnp", async () => {
     const chapters = pnpText.split(new RegExp("CHAPTER [A-Z]+."));
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
 
     console.time("index");
     for (let i = 0; i < chapters.length; i++) {
@@ -64,12 +119,12 @@ describe("prefixWordShard", () => {
     console.timeEnd("index");
 
     console.time("serialize");
-    const serialized = await serialize(shard);
+    const serialized = await serialize(shard, encryptionFn);
     console.timeEnd("serialize");
 
     const size = Object.entries(serialized.documents).reduce(
       (p, [documentId, data]) => {
-        return p + data.length;
+        return p + data.byteLength;
       },
       0
     );

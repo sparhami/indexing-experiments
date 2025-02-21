@@ -1,13 +1,13 @@
 import { wordIterator } from "./wordIterator";
-import { PrefixWordShard } from "./prefixWordShard";
+import { LocalPrefixWordShard } from "./localPrefixWordShard";
 import { DocumentId, PrefixWordPosition } from "./indexTypes";
 
 export class PrefixWordIndex {
-  private readonly shards: Array<PrefixWordShard> = [];
+  private readonly shards: Array<LocalPrefixWordShard> = [];
 
   constructor() {}
 
-  addShard(shard: PrefixWordShard) {
+  addShard(shard: LocalPrefixWordShard) {
     const index = shard.lastWord
       ? this.getShardIndex(shard.lastWord)
       : this.shards.length - 1;
@@ -39,7 +39,7 @@ export class PrefixWordIndex {
     return index;
   }
 
-  private getShard(text: string): PrefixWordShard {
+  private getShard(text: string): LocalPrefixWordShard {
     const index = Math.min(this.getShardIndex(text), this.shards.length - 1);
     const shard = this.shards[index];
 

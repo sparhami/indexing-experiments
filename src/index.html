@@ -1,13 +1,13 @@
 <html>
   <script type="module">
-    import { PrefixWordShard, serialize } from "../build/bundle.js";
+    import { LocalPrefixWordShard, serialize } from "../build/bundle.js";
 
     const pnpText = await fetch("./testdata/pnp.text").then((res) =>
       res.text()
     );
 
     const chapters = pnpText.split(new RegExp("CHAPTER [A-Z]+."));
-    const shard = new PrefixWordShard();
+    const shard = new LocalPrefixWordShard();
 
     console.time("index");
     for (let i = 0; i < chapters.length; i++) {
